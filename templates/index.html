@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dementia Voice Screener</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #F5F7FA;
+      color: #212121;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: #1565C0;
+      color: #fff;
+      padding: 14px 32px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.02em; }
+    header span { font-size: 0.78rem; opacity: 0.75; }
+
+    /* ── Layout ──────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 28px 16px 40px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+      padding: 28px 32px 32px;
+      width: 100%;
+      max-width: 600px;
+    }
+    .card > h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1565C0;
+      margin-bottom: 22px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #E3F2FD;
+    }
+
+    /* ── Form ────────────────────────────────────────────────── */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: #424242;
+      margin-bottom: 6px;
+    }
+    .field label .opt { font-weight: 400; color: #9E9E9E; }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #BDBDBD;
+      border-radius: 4px;
+      font-size: 0.93rem;
+      color: #212121;
+      background: #fff;
+    }
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #1565C0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,.12);
+    }
+    .hint { font-size: 0.76rem; color: #757575; margin-top: 5px; line-height: 1.4; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary   { background: #1565C0; color: #fff; }
+    .btn-primary:hover:not(:disabled)   { background: #1976D2; }
+    .btn-outline   { background: transparent; color: #1565C0; border: 1.5px solid #1565C0; }
+    .btn-outline:hover:not(:disabled)   { background: #E3F2FD; }
+    .actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+
+    /* ── Countdown ───────────────────────────────────────────── */
+    #view-recording { text-align: center; padding: 8px 0 4px; }
+    .countdown-wrap { position: relative; width: 148px; height: 148px; margin: 20px auto 16px; }
+    .countdown-wrap svg { transform: rotate(-90deg); }
+    .c-track    { fill: none; stroke: #E3F2FD; stroke-width: 8; }
+    .c-progress { fill: none; stroke: #1565C0; stroke-width: 8; stroke-linecap: round;
+                  transition: stroke-dashoffset .18s linear; }
+    .countdown-num {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; font-weight: 700; color: #1565C0;
+    }
+    .rec-note { font-size: 0.87rem; color: #546E7A; }
+    .pulse { animation: pulse 1.2s ease-in-out infinite; display: inline-block; color: #E53935; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── Processing ──────────────────────────────────────────── */
+    #view-processing { text-align: center; padding: 32px 0; }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid #E3F2FD; border-top-color: #1565C0;
+      border-radius: 50%; animation: spin .75s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .proc-note { font-size: 0.87rem; color: #546E7A; }
+
+    /* ── Risk band block ─────────────────────────────────────── */
+    .risk-band {
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .risk-band.low    { background: #E8F5E9; border: 2px solid #43A047; }
+    .risk-band.review { background: #FFF8E1; border: 2px solid #FB8C00; }
+    .risk-band.high   { background: #FFEBEE; border: 2px solid #E53935; }
+
+    .band-name { font-size: 1.5rem; font-weight: 700; letter-spacing: .07em; }
+    .risk-band.low    .band-name { color: #2E7D32; }
+    .risk-band.review .band-name { color: #E65100; }
+    .risk-band.high   .band-name { color: #C62828; }
+
+    .band-score { font-size: 0.88rem; color: #616161; margin-top: 3px; }
+
+    /* ── Result fields ───────────────────────────────────────── */
+    .result-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+      margin-bottom: 18px;
+    }
+    .rf-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: .05em; color: #9E9E9E; margin-bottom: 2px; }
+    .rf-value { font-size: 0.97rem; font-weight: 600; color: #212121; }
+
+    /* ── Probability bars ────────────────────────────────────── */
+    .section-head {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: .06em;
+      color: #9E9E9E; margin-bottom: 10px;
+    }
+    .prob-row  { margin-bottom: 9px; }
+    .prob-meta { display: flex; justify-content: space-between; font-size: 0.83rem; color: #424242; margin-bottom: 3px; }
+    .prob-track { background: #ECEFF1; border-radius: 3px; height: 7px; }
+    .prob-fill  { height: 7px; border-radius: 3px; background: #1565C0; transition: width .4s ease; }
+
+    /* ── Markers ─────────────────────────────────────────────── */
+    .marker-row { display: flex; justify-content: space-between; font-size: 0.83rem; padding: 3px 0; color: #424242; }
+
+    /* ── Timing ──────────────────────────────────────────────── */
+    .timing { font-size: 0.78rem; color: #9E9E9E; display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+
+    /* ── Disclaimer ──────────────────────────────────────────── */
+    .disclaimer {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: #FFF8E1;
+      border: 1.5px solid #FFB300;
+      border-radius: 5px;
+      font-size: 0.83rem;
+      color: #5D4037;
+      line-height: 1.55;
+    }
+    .disclaimer-head {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: #E65100; margin-bottom: 5px;
+    }
+
+    /* ── Session meta ────────────────────────────────────────── */
+    .session-meta { font-size: 0.78rem; color: #9E9E9E; margin-bottom: 14px; display: flex; gap: 18px; flex-wrap: wrap; }
+
+    /* ── Error ───────────────────────────────────────────────── */
+    .error-box {
+      background: #FFEBEE; border: 1.5px solid #E53935;
+      border-radius: 5px; padding: 14px 16px;
+      font-size: 0.88rem; color: #B71C1C; line-height: 1.5;
+    }
+
+    hr { border: none; border-top: 1px solid #F0F0F0; margin: 16px 0; }
+
+    /* ── Mode toggle ─────────────────────────────────────────── */
+    .mode-toggle {
+      display: flex;
+      border: 1.5px solid #BDBDBD;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .mode-btn {
+      flex: 1; padding: 9px 16px; border: none;
+      background: #fff; color: #616161;
+      font-size: 0.88rem; font-weight: 500; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .mode-btn + .mode-btn { border-left: 1.5px solid #BDBDBD; }
+    .mode-btn.active { background: #E3F2FD; color: #1565C0; font-weight: 600; }
+    .mode-btn:hover:not(.active) { background: #F5F5F5; }
+
+    /* ── File input ──────────────────────────────────────────── */
+    input[type="file"] {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px dashed #BDBDBD; border-radius: 4px;
+      font-size: 0.88rem; color: #424242;
+      background: #FAFAFA; cursor: pointer;
+    }
+    input[type="file"]:focus { outline: none; border-color: #1565C0; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Dementia Voice Screener</h1>
+  <span>Edge Device · Screening Support Tool · Not a Diagnostic Device</span>
+</header>
+
+<main>
+  <div class="card">
+
+    <!-- ── Setup ──────────────────────────────────────────── -->
+    <div id="view-setup">
+      <h2>New Screening Session</h2>
+
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-mode-record" onclick="setMode('record')">🎙 Record from microphone</button>
+        <button class="mode-btn"        id="btn-mode-upload" onclick="setMode('upload')">📁 Upload audio file</button>
+      </div>
+
+      <div class="field" id="field-duration">
+        <label for="sel-duration">Recording duration</label>
+        <select id="sel-duration">
+          <option value="10">10 seconds</option>
+          <option value="20">20 seconds</option>
+          <option value="30" selected>30 seconds</option>
+          <option value="60">60 seconds</option>
+        </select>
+      </div>
+
+      <div class="field hidden" id="field-file">
+        <label for="inp-file">Audio file <span style="font-weight:400;color:#9E9E9E">(WAV only)</span></label>
+        <input type="file" id="inp-file" accept=".wav,audio/wav,audio/x-wav" />
+        <p class="hint">Accepts 16-bit or 32-bit PCM WAV. Mono or stereo (stereo is downmixed). Any sample rate (resampled to 16 kHz internally if needed).</p>
+      </div>
+
+      <div class="field">
+        <label for="inp-label">Session label <span class="opt">(optional)</span></label>
+        <input type="text" id="inp-label" placeholder="e.g. patient initials or session reference" maxlength="80" />
+        <p class="hint">Appears in the downloaded report. Do not enter full names or identifiable information under a data governance policy.</p>
+      </div>
+
+      <button class="btn btn-primary" id="btn-start" onclick="handleSubmit()">Start Session</button>
+    </div>
+
+    <!-- ── Recording ──────────────────────────────────────── -->
+    <div id="view-recording" class="hidden">
+      <h2>Recording in Progress</h2>
+
+      <div class="countdown-wrap">
+        <!-- r=62, circumference ≈ 389.56 -->
+        <svg width="148" height="148" viewBox="0 0 148 148">
+          <circle class="c-track"    cx="74" cy="74" r="62" />
+          <circle class="c-progress" id="c-ring" cx="74" cy="74" r="62"
+                  stroke-dasharray="389.56" stroke-dashoffset="0" />
+        </svg>
+        <div class="countdown-num" id="countdown-num">--</div>
+      </div>
+
+      <p class="rec-note"><span class="pulse">⬤</span>&nbsp; Ask the participant to speak now</p>
+    </div>
+
+    <!-- ── Processing ─────────────────────────────────────── -->
+    <div id="view-processing" class="hidden">
+      <h2>Analysing Audio</h2>
+      <div style="padding: 24px 0 8px;">
+        <div class="spinner"></div>
+        <p class="proc-note">Running signal processing and inference&hellip;</p>
+      </div>
+    </div>
+
+    <!-- ── Result ─────────────────────────────────────────── -->
+    <div id="view-result" class="hidden">
+      <h2>Screening Result</h2>
+
+      <div class="session-meta">
+        <span id="meta-ts"></span>
+        <span id="meta-label" class="hidden"></span>
+      </div>
+
+      <div class="risk-band" id="risk-band">
+        <div class="band-name" id="band-name"></div>
+        <div class="band-score">Risk score: <strong id="band-score"></strong> / 100</div>
+      </div>
+
+      <div class="result-row">
+        <div>
+          <div class="rf-label">Screening Indicator</div>
+          <div class="rf-value" id="res-label"></div>
+        </div>
+        <div>
+          <div class="rf-label">Confidence</div>
+          <div class="rf-value" id="res-conf"></div>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="section-head">Per-class screening probabilities</div>
+      <div id="prob-bars"></div>
+
+      <div id="markers-section" class="hidden">
+        <hr />
+        <div class="section-head">Markers</div>
+        <div id="marker-rows"></div>
+      </div>
+
+      <div class="timing" id="timing"></div>
+
+      <div class="disclaimer">
+        <div class="disclaimer-head">⚕ Important Notice</div>
+        <span id="disclaimer-text"></span>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="resetToSetup()">New Session</button>
+        <button class="btn btn-outline" onclick="downloadReport()">Download Report</button>
+      </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────── -->
+    <div id="view-error" class="hidden">
+      <h2>Session Error</h2>
+      <div class="error-box" id="error-msg"></div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="resetToSetup()">Try Again</button>
+      </div>
+    </div>
+
+  </div><!-- /.card -->
+</main>
+
+<script>
+  // ── Constants ────────────────────────────────────────────────────────────
+  const CIRCUMFERENCE = 2 * Math.PI * 62;  // r=62, ≈389.56
+
+  const BAND_LABELS = {
+    low:    'LOW RISK',
+    review: 'REQUIRES REVIEW',
+    high:   'HIGH RISK INDICATOR',
+  };
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let sessionId    = null;
+  let sessionMeta  = { label: '', timestamp: '' };
+  let pollTimer    = null;
+  let tickTimer    = null;
+  let sessionEnd   = 0;
+  let sessionTotal = 30;
+  let currentMode  = 'record';
+
+  // ── View helpers ─────────────────────────────────────────────────────────
+  function showView(name) {
+    ['setup', 'recording', 'processing', 'result', 'error'].forEach(v =>
+      document.getElementById('view-' + v).classList.toggle('hidden', v !== name)
+    );
+  }
+
+  // ── Mode toggle ──────────────────────────────────────────────────────────
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('field-duration').classList.toggle('hidden', mode !== 'record');
+    document.getElementById('field-file').classList.toggle('hidden', mode !== 'upload');
+    document.getElementById('btn-mode-record').classList.toggle('active', mode === 'record');
+    document.getElementById('btn-mode-upload').classList.toggle('active', mode === 'upload');
+    document.getElementById('btn-start').textContent =
+      mode === 'record' ? 'Start Session' : 'Analyse File';
+  }
+
+  function handleSubmit() {
+    if (currentMode === 'record') startSession();
+    else uploadSession();
+  }
+
+  // ── Upload session ────────────────────────────────────────────────────────
+  function uploadSession() {
+    const fileInput = document.getElementById('inp-file');
+    const label     = document.getElementById('inp-label').value.trim();
+
+    if (!fileInput.files[0]) {
+      alert('Please select a WAV file first.');
+      return;
+    }
+    const file = fileInput.files[0];
+    if (!file.name.toLowerCase().endsWith('.wav')) {
+      alert('Only WAV files are supported.');
+      return;
+    }
+
+    sessionMeta = { label, timestamp: new Date().toLocaleString() };
+
+    const btn = document.getElementById('btn-start');
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('label', label);
+
+    fetch('/upload-session', { method: 'POST', body: formData })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          alert('Could not process file: ' + data.error);
+          btn.disabled = false;
+          return;
+        }
+        sessionId = data.session_id;
+        showView('processing');
+        startPolling();
+      })
+      .catch(err => {
+        alert('Network error: ' + err);
+        btn.disabled = false;
+      });
+  }
+
+  // ── Start session ────────────────────────────────────────────────────────
+  function startSession() {
+    const duration = parseInt(document.getElementById('sel-duration').value, 10);
+    const label    = document.getElementById('inp-label').value.trim();
+
+    sessionMeta  = { label, timestamp: new Date().toLocaleString() };
+    sessionTotal = duration;
+
+    const btn = document.getElementById('btn-start');
+    btn.disabled = true;
+
+    fetch('/start-session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ duration, label }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        alert('Could not start session: ' + data.error);
+        btn.disabled = false;
+        return;
+      }
+      sessionId  = data.session_id;
+      sessionEnd = Date.now() + duration * 1000;
+      showView('recording');
+      startCountdown(duration);
+      startPolling();
+    })
+    .catch(err => {
+      alert('Network error: ' + err);
+      btn.disabled = false;
+    });
+  }
+
+  // ── Countdown ────────────────────────────────────────────────────────────
+  function startCountdown(total) {
+    renderCountdown(total, total);
+    tickTimer = setInterval(() => {
+      const remaining = Math.max(0, (sessionEnd - Date.now()) / 1000);
+      renderCountdown(remaining, total);
+      if (remaining <= 0) stopCountdown();
+    }, 200);
+  }
+
+  function stopCountdown() {
+    if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+  }
+
+  function renderCountdown(remaining, total) {
+    document.getElementById('countdown-num').textContent = Math.ceil(remaining);
+    document.getElementById('c-ring').style.strokeDashoffset =
+      CIRCUMFERENCE * (1 - remaining / total);
+  }
+
+  // ── Polling ──────────────────────────────────────────────────────────────
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(pollStatus, 1000);
+  }
+
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  function pollStatus() {
+    fetch('/status/' + sessionId)
+      .then(r => r.json())
+      .then(data => {
+        if (data.state === 'processing') {
+          stopCountdown();
+          showView('processing');
+        } else if (data.state === 'done') {
+          stopPolling();
+          stopCountdown();
+          renderResult(data.result);
+          showView('result');
+        } else if (data.state === 'error') {
+          stopPolling();
+          stopCountdown();
+          document.getElementById('error-msg').textContent =
+            data.error_msg || 'An unexpected error occurred.';
+          showView('error');
+        }
+        // state === 'recording': stay on countdown view
+      })
+      .catch(() => { /* transient blip — keep polling */ });
+  }
+
+  // ── Render result ────────────────────────────────────────────────────────
+  function renderResult(r) {
+    // Risk band
+    const bandEl = document.getElementById('risk-band');
+    bandEl.className = 'risk-band ' + r.risk_band;
+    document.getElementById('band-name').textContent  = BAND_LABELS[r.risk_band] || r.risk_band.toUpperCase();
+    document.getElementById('band-score').textContent = r.risk_score;
+
+    // Label and confidence
+    document.getElementById('res-label').textContent = r.predicted_label.replace(/_/g, ' ');
+    document.getElementById('res-conf').textContent  = (r.confidence * 100).toFixed(1) + '%';
+
+    // Probability bars
+    const barsEl = document.getElementById('prob-bars');
+    barsEl.innerHTML = '';
+    for (const [name, prob] of Object.entries(r.class_probabilities)) {
+      const pct = (prob * 100).toFixed(1);
+      const row = document.createElement('div');
+      row.className = 'prob-row';
+      row.innerHTML =
+        `<div class="prob-meta"><span>${name.replace(/_/g, ' ')}</span><span>${pct}%</span></div>` +
+        `<div class="prob-track"><div class="prob-fill" style="width:${pct}%"></div></div>`;
+      barsEl.appendChild(row);
+    }
+
+    // Markers (hidden unless present)
+    const markers = r.markers || {};
+    const markerKeys = Object.keys(markers);
+    const markerSection = document.getElementById('markers-section');
+    if (markerKeys.length > 0) {
+      const markerRows = document.getElementById('marker-rows');
+      markerRows.innerHTML = '';
+      for (const k of markerKeys) {
+        const row = document.createElement('div');
+        row.className = 'marker-row';
+        row.innerHTML = `<span>${k.replace(/_/g, ' ')}</span><span>${markers[k].toFixed(3)}</span>`;
+        markerRows.appendChild(row);
+      }
+      markerSection.classList.remove('hidden');
+    } else {
+      markerSection.classList.add('hidden');
+    }
+
+    // Timing
+    document.getElementById('timing').innerHTML =
+      `<span>Preprocessing: ${r.preprocess_ms.toFixed(1)} ms</span>` +
+      `<span>Inference: ${r.inference_ms.toFixed(1)} ms</span>`;
+
+    // Disclaimer (verbatim)
+    document.getElementById('disclaimer-text').textContent = r.disclaimer;
+
+    // Session meta
+    document.getElementById('meta-ts').textContent = sessionMeta.timestamp;
+    const lblEl = document.getElementById('meta-label');
+    if (sessionMeta.label) {
+      lblEl.textContent = 'Label: ' + sessionMeta.label;
+      lblEl.classList.remove('hidden');
+    } else {
+      lblEl.classList.add('hidden');
+    }
+  }
+
+  // ── Download ─────────────────────────────────────────────────────────────
+  function downloadReport() {
+    if (sessionId) window.location = '/report/' + sessionId;
+  }
+
+  // ── Reset ────────────────────────────────────────────────────────────────
+  function resetToSetup() {
+    stopPolling();
+    stopCountdown();
+    sessionId = null;
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('inp-label').value = '';
+    document.getElementById('inp-file').value = '';
+    showView('setup');
+  }
+</script>
+</body>
+</html>

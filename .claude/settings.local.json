@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python verify_two_stage.py)",
+      "Bash(python test_edge_inference.py)",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

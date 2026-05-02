@@ -1,0 +1,49 @@
+# Edge inference config for the dementia voice screening model.
+# Edit this file when the teammate delivers the real model.
+# Code does not need to change.
+
+# --- Model location and backend ---
+# Two-stage wav2vec2 pipeline: set both model_path (backbone) and head_model_path (head).
+# backend: auto detects wav2vec2_two_stage when head_model_path is present.
+#
+# Paths are resolved relative to the working directory when you run the app.
+# Adjust to match your deployment layout.
+model_path: dementia-voice-detector/models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_fp32_external/model.onnx
+head_model_path: dementia-voice-detector/models/phaseD_frozen_ensemble_deploy/wav2vec2_component_head_fp32.onnx
+
+# auto = infer from extension; or force: onnx | tflite | dummy | wav2vec2_two_stage
+backend: auto
+
+# --- Audio contract (matches teammate's training in src/config.py: 16 kHz mono) ---
+sample_rate: 16000
+# Training data had median 51.5 s, mean 55 s (range 6–162 s). The accumulator
+# backbone pools over multiple 8-second chunks; 60 s (= 7-8 chunks) is a good
+# target that matches the training distribution. The two-stage backend bypasses
+# pad/truncate and processes whatever length is passed — this value is only used
+# for the warmup dummy and for informational logging.
+expected_input_seconds: 60.0
+
+# --- Preprocessing behavior ---
+pad_mode: zero                 # zero | reflect
+truncate_mode: center          # head | center | loudest
+
+# --- Tensor layout ---
+# Leave input_name as null to auto-detect from the model.
+input_name: null
+input_dtype: float32           # float32 | int8 | uint8
+add_batch_dim: true            # most exported audio models expect (1, samples)
+
+# --- Labels and risk banding ---
+# Order MUST match the model's output classes. Per teammate's inference.py,
+# index 1 = dementia.
+label_names: [non_dementia, dementia]
+positive_class_index: 1
+
+# Cutoffs on P(dementia) for screening bands.
+# < low: low risk; [low, high]: review zone; > high: high risk.
+# Per final_model_decision.md, screening bands are correct framing — not a binary verdict.
+risk_band_thresholds: [0.33, 0.66]
+
+# Optional: per-marker score names if/when the model exposes them.
+# Leave as [] until the teammate confirms the marker layer exists.
+marker_names: []

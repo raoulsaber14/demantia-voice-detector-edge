@@ -1,0 +1,67 @@
+C:.
+│   audio_pipeline.py
+│   audio_pipeline_documentation.docx
+│   record_and_screen.py
+│   test_edge_inference.py
+│   test_pipeline.py
+│
+├───dementia-voice-detector
+│   │   .gitignore
+│   │   README.md
+│   │   requirements.txt
+│   │
+│   ├───reports
+│   │   └───final
+│   │           FINAL_BASELINE_SUMMARY.md
+│   │           final_fp_fn_error_analysis.md
+│   │           final_limitations_and_future_work.md
+│   │           final_model_decision.md
+│   │           final_presentation_bullets.md
+│   │           final_recall_threshold_sweep_report.md
+│   │           final_results.md
+│   │           phase6_final_comparison.md
+│   │           phaseD_hubert_recall_recovery_benchmark.md
+│   │
+│   ├───scripts
+│   │       dataset_audit.py
+│   │       final_recall_threshold_sweep.py
+│   │       phase1_audit.py
+│   │       phase3_closeout.py
+│   │       phase4_baseline_experiments.py
+│   │       phase6_5_audio_triage.py
+│   │       phase6_5_expand_unresolved_rows.py
+│   │       phase6_deep_diagnostics.py
+│   │       phase6_focused_experiments.py
+│   │       phase6_reliability_frozen_fusion.py
+│   │       phaseB1_classical_strengthening.py
+│   │       phaseC_frozen_embedding_benchmark.py
+│   │       phaseD_hubert_recall_recovery_benchmark.py
+│   │
+│   └───src
+│           audio_utils.py
+│           config.py
+│           dataset.py
+│           evaluate.py
+│           explain.py
+│           features.py
+│           inference.py
+│           metadata_utils.py
+│           preprocess.py
+│           train_baseline.py
+│           train_wav2vec.py
+│           vad_segment.py
+│           __init__.py
+│
+├───edge_inference
+│       backends.py
+│       benchmark.py
+│       cli.py
+│       config.py
+│       make_dummy_model.py
+│       model_config.yaml
+│       preprocessing.py
+│       wrapper.py
+│       __init__.py
+│
+└───models
+        demantia_wav2vec_int8.onnx.txt
