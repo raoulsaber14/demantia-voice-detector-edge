@@ -20,7 +20,7 @@ A speech-based dementia screening-support tool that runs on a Raspberry Pi 4. It
 │   ├── config.py                # EdgeConfig dataclass + YAML loader
 │   ├── preprocessing.py         # Waveform → tensor (resample, pad, truncate)
 │   └── wrapper.py               # DementiaScreener public API
-├── models/                      # NOT in git — copy manually (see below)
+├── models/                      #(see below)
 ├── src/
 │   └── audio_pipeline.py        # Mic capture, VAD cleaning, WAV loading
 ├── requirements.txt
@@ -30,24 +30,47 @@ A speech-based dementia screening-support tool that runs on a Raspberry Pi 4. It
 
 ## Models
 
-**Model files are not committed to this repository** (too large for git). After cloning, copy the `models/` directory to the project root manually:
-
-```bash
-# Example: copy from the deployment machine via SCP
-scp -r user@pi-ip:~/project/models ./models
-```
-
-The config expects the Phase D wav2vec2 two-stage deployment layout:
+Model files are committed directly to this repository. After cloning, the `models/` directory will be present with all weights included. The layout is:
 
 ```
 models/
-└── phaseD_frozen_ensemble_deploy/
-    ├── wav2vec2_base/
-    │   └── wav2vec2_base_chunk8_accumulator_fp32_external/
-    │       ├── model.onnx
-    │       └── model.*.weight   (external weight files — copy the whole directory)
-    └── wav2vec2_component_head_fp32.onnx
+├── calibrated_phase3_governed/
+│   └── logistic_regression_calibrated.joblib
+├── phaseD_frozen_ensemble_deploy/          ← used by the Flask web server
+│   ├── max_probability_ensemble_manifest.json
+│   ├── wav2vec2_component.json
+│   ├── wav2vec2_component_head_fp32.onnx   ← classification head
+│   ├── wav2vec2_component_head_contract.json
+│   ├── wav2vec2_base/
+│   │   ├── wav2vec2_base_chunk8_accumulator_contract.json
+│   │   ├── wav2vec2_base_chunk8_accumulator_fp32_external/
+│   │   │   ├── model.onnx                  ← backbone (fp32)
+│   │   │   └── model.*.weight              (external weight files)
+│   │   └── wav2vec2_base_chunk8_accumulator_int8_external/
+│   │       ├── model.onnx                  ← backbone (int8, quantized)
+│   │       └── model.*.weight
+│   ├── hubert_only_component.json
+│   ├── hubert_only_component_head_fp32.onnx
+│   ├── hubert_only_component_head_contract.json
+│   ├── hubert_plus_handcrafted_component.json
+│   ├── hubert_plus_handcrafted_component_head_fp32.onnx
+│   ├── hubert_plus_handcrafted_component_head_contract.json
+│   └── hubert_base_ls960/
+│       ├── hubert_base_ls960_chunk8_accumulator_contract.json
+│       ├── hubert_base_ls960_chunk8_accumulator_fp32_external/
+│       │   ├── model.onnx
+│       │   └── model.*.weight
+│       └── hubert_base_ls960_chunk8_accumulator_int8_external/
+│           ├── model.onnx
+│           └── model.*.weight
+└── wav2vec/
+    └── wav2vec_base_20260418_001/
+        └── full/
+            └── config.json
+
 ```
+
+The Flask web server uses the **wav2vec2 fp32 two-stage pipeline** by default (`configs/edge_inference.yaml`): backbone at `phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_fp32_external/model.onnx` and head at `phaseD_frozen_ensemble_deploy/wav2vec2_component_head_fp32.onnx`.
 
 ## Installation
 
