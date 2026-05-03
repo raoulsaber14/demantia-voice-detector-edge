@@ -67,7 +67,7 @@ The locked threshold is frozen for reproducibility and documentation, not becaus
 
 ## 10. Ethical / Clinical Caution
 
-Outputs must be banded, cautious, and non-diagnostic. The demo must not expose raw probabilities, percentages, confidence scores, diagnostic labels, or language implying that dementia is confirmed or ruled out. Source: `docs/PHASE6_5_DEMO_APP_ALIGNMENT_SPEC.md`; `docs/DEMO_ALIGNMENT_SPEC_FINAL.md`.
+The committed demos are non-diagnostic but they do expose raw model outputs for research/demo review, including score-style and confidence-style fields. Those outputs must not be interpreted as clinical probabilities, confirmations, rule-outs, or a deployment-ready presentation layer. Source: `docs/PHASE6_5_DEMO_APP_ALIGNMENT_SPEC.md`; `docs/DEMO_ALIGNMENT_SPEC_FINAL.md`; `app/flask/templates/index.html`; `app/streamlit/demo_app.py`.
 
 ## 11. Governance
 

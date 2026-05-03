@@ -78,6 +78,19 @@ Flask demo:
 python3 -m app.flask.web_server
 ```
 
+Dockerized Flask demo:
+
+```bash
+docker build -t edge-ai-dementia-voice .
+docker run --rm -p 5000:5000 edge-ai-dementia-voice
+```
+
+Notes:
+- the committed Docker path serves the existing Flask demo only
+- the default container behavior uses the committed dummy backend, so it is a smoke-test/demo path rather than real model deployment
+- microphone capture inside Docker depends on host audio pass-through; the upload flow is the more portable demo path
+- if you have real external model artifacts, place them under `models/` and mount that folder into the container as needed, for example `-v "$(pwd)/models:/app/models"`
+
 Streamlit demo:
 
 ```bash
@@ -118,6 +131,8 @@ If you want to run external ONNX artifacts:
 
 See `models/README.md` for the expected layout.
 
+The committed Flask and Streamlit demos currently expose raw screening outputs such as risk score, confidence, class probabilities, and threshold controls. They should be treated as research/demo review interfaces, not as clinician-safe or patient-facing presentation layers.
+
 ## Final Documentation
 
 Primary final documents:
@@ -129,6 +144,8 @@ Primary final documents:
 - `docs/OFFICIAL_BASELINE_CONFIGURATION.md`
 - `docs/BASELINE_MODEL_CARD.md`
 - `docs/SUBMISSION_OVERVIEW.md`
+- `docs/fairness_bias_statement.md`
+- `docs/privacy_data_provenance.md`
 
 Additional background:
 
@@ -154,3 +171,5 @@ The full research data tree is not included. Missing from the public snapshot ar
 - Real edge inference still requires external model artifacts under `models/`.
 - The web prototype is a demo layer and should not be treated as the final user-facing clinical presentation.
 - The Flask app handles one active session at a time.
+- Subgroup fairness evaluation is limited by the available metadata coverage and should not be treated as complete fairness validation.
+- Privacy, provenance, and leakage-control boundaries are documented in `docs/privacy_data_provenance.md`.

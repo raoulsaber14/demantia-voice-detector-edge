@@ -2,6 +2,8 @@
 # The committed default config uses the dummy backend so the repo is runnable
 # without external model binaries. Copy this file and replace the paths below
 # when real ONNX assets are available.
+# The filenames below are expected locations only; the corresponding binaries
+# are not committed in this repository snapshot.
 
 # --- Model location and backend ---
 # Two-stage wav2vec2 pipeline example: backbone + head exported separately.

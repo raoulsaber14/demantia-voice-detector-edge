@@ -2,6 +2,8 @@
 
 Historical planning document.
 
+Some demo-safety requirements below describe an unimplemented target state from the planning phase and do not match the committed demo UI in this repository snapshot.
+
 Planning and documentation only. This file does not change training code, model selection logic, thresholds, or model artifacts. It reflects a larger working-tree planning snapshot rather than the exact set of artifacts committed in this final submission repo.
 
 ## Repository Context

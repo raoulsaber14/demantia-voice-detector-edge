@@ -2,110 +2,79 @@
 
 Freeze date: 2026-04-22.
 
-This is documentation only. It does not edit `app/streamlit/demo_app.py`.
+This document records the current committed demo behavior in the submission
+repository. It does not request UI changes.
 
 ## Source Artifacts
 
-- Frozen configuration: `docs/OFFICIAL_BASELINE_CONFIGURATION.md`.
-- Prior demo alignment spec: `docs/PHASE6_5_DEMO_APP_ALIGNMENT_SPEC.md`.
-- Error analysis: `docs/FINAL_ERROR_ANALYSIS.md`.
-- Threshold source: `reports/phase4_official_winner.md`; `reports/phase6_5_week2_phase4_rerun_comparison.md`.
+- `app/flask/templates/index.html`
+- `app/flask/web_server.py`
+- `app/streamlit/demo_app.py`
+- `docs/OFFICIAL_BASELINE_CONFIGURATION.md`
+- `docs/BASELINE_MODEL_CARD.md`
 
-## UI Constraints
+## Current Committed Demo Contract
 
-The demo must not show raw scores, percentages, confidence displays, diagnostic labels, or exact threshold details to end users. Source: `docs/PHASE6_5_DEMO_APP_ALIGNMENT_SPEC.md`.
+The repository includes two demo surfaces:
 
-Allowed user-facing result elements:
+- a Flask edge-demo UI for microphone/upload sessions
+- a Streamlit research/demo UI for manual local inference
 
-- Qualitative screening band.
-- Short cautious explanation.
-- Non-diagnostic disclaimer.
-- Conservative next-step language.
+These demos are honest about the model being non-diagnostic, but they are not
+minimal clinician-facing interfaces. They expose raw screening outputs for
+research/demo review.
 
-## Internal Band Definition
+## Flask Demo Output
 
-Frozen internal threshold: `0.300`. Source: `docs/OFFICIAL_BASELINE_CONFIGURATION.md`.
+The committed Flask result screen shows:
 
-Internal display margin: `0.050`. The margin is a demo-safety display rule based on the final error analysis showing heavy score concentration within 0.05 of the threshold. Source: `docs/FINAL_ERROR_ANALYSIS.md`.
+- qualitative risk band
+- risk score out of 100
+- screening indicator label
+- confidence percentage
+- per-class screening probabilities
+- optional marker rows when available
+- preprocessing and inference timing
+- non-diagnostic disclaimer
 
-Internal routing:
+The downloadable Flask session report follows the same pattern and includes the
+same raw screening output fields.
 
-| Internal score condition | User-facing band |
-|---|---|
-| score < 0.250 | Low likelihood |
-| 0.250 <= score < 0.350 | Borderline |
-| score >= 0.350 | Elevated likelihood |
+## Streamlit Demo Output
 
-Any score at or above 0.300 is internally threshold-positive. If it is also within the borderline margin, the display should still use the `Borderline` band to avoid overstating a near-threshold result.
+The committed Streamlit demo shows:
 
-## Exact Wording
+- model type selector
+- model path field
+- decision threshold control
+- predicted label
+- confidence
+- dementia probability
+- threshold used
+- optional component details for the ensemble runtime
+- explanation text
+- non-diagnostic disclaimer
 
-### Low likelihood
+## Interpretation Boundary
 
-Band label:
+The current demos should be interpreted as research/demo review interfaces.
+They are not the same thing as a clinician-safe or patient-facing product UX.
 
-> Low likelihood
+Important boundaries:
 
-Text:
+- screening-support only
+- not a diagnosis
+- not clinically validated
+- raw scores and confidence-style outputs must not be treated as medical
+  probabilities
+- the presence of these fields in the demo does not change the frozen model or
+  make the interface deployment-ready
 
-> This screening analysis did not show an elevated speech-pattern signal in this recording. This does not rule out cognitive or memory concerns.
+## Why This Document Matters
 
-Next step:
+Earlier planning docs described a stricter future-state demo that would hide
+raw scores, confidence values, and diagnostic-style labels. That stricter UI
+was not the behavior committed in this repository snapshot.
 
-> If concerns are present, consider professional evaluation regardless of this screening result.
-
-### Borderline
-
-Band label:
-
-> Borderline
-
-Text:
-
-> This result is close to the model's decision boundary and should be treated as uncertain. It is not a diagnosis.
-
-Next step:
-
-> Consider repeat recording review or professional screening if memory, language, behavior, or daily-function concerns are present.
-
-### Elevated likelihood
-
-Band label:
-
-> Elevated likelihood
-
-Text:
-
-> This screening analysis suggests speech-pattern features that may warrant further evaluation. Not a diagnosis.
-
-Next step:
-
-> Consider discussing concerns with a qualified health professional or using formal cognitive screening. Do not use this result alone for decisions.
-
-## Disclaimer Text
-
-Short disclaimer:
-
-> This result is for screening support only. It is not diagnostic, is not clinically validated, and does not confirm or rule out dementia.
-
-Expanded disclaimer:
-
-> This speech-based output is a non-diagnostic screening signal from a research prototype. It is not a medical probability, confidence score, diagnosis, or all-clear. False positives and false negatives are possible. The result should be interpreted only with appropriate professional judgment and additional assessment.
-
-The short disclaimer must be shown on every result screen. The expanded disclaimer should be shown in any details or review view.
-
-## Prohibited Elements
-
-- Raw probability.
-- Percentage risk.
-- Confidence score.
-- Gauge implying severity.
-- Diagnostic labels such as `dementia` or `non_dementia`.
-- Buttons or text implying diagnosis, such as "Dementia detected" or "No dementia detected".
-- Any statement that the model confirms or rules out dementia.
-- Any claim that the threshold is clinically validated.
-- Feature-level causal explanations or biomarker language.
-
-## Implementation Boundary
-
-This spec only aligns the demo language and display contract with the frozen baseline. It does not request deployment, hardware integration, model changes, threshold changes, or demo code edits in this freeze run.
+For submission review, the source of truth is the current code above, not the
+unimplemented future-state wording from earlier planning notes.

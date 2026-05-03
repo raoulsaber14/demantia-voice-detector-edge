@@ -8,6 +8,10 @@ Real ONNX deployment artifacts are not included in this submission snapshot.
 If you want to run the edge prototype with external models, place them in this
 folder and start from `configs/edge_inference.onnx.example.yaml`.
 
+For the committed Docker path, the simplest option is to mount the local
+`models/` folder into the container at `/app/models` if you want to supply
+external artifacts at runtime.
+
 The example config assumes a two-stage export:
 
 - `models/wav2vec2_backbone.onnx`
