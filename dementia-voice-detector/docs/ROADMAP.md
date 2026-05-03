@@ -1,8 +1,15 @@
 # Project Roadmap
 
+Historical planning document.
+
+This roadmap was written before the final submission freeze. The final packaged repository differs from this plan in two important ways:
+
+- the official final academic baseline remained the documented classical logistic-regression system
+- the root-level edge app remained a prototype engineering layer rather than a validated deployment artifact
+
 ## Phase 1: Project Foundation
 
-- Keep `dementia_voice_project/` as the canonical project root.
+- Keep the research pipeline organized as a single project root.
 - Lock down data organization and leakage controls.
 - Verify metadata-to-audio matching.
 - Establish a reproducible baseline pipeline.

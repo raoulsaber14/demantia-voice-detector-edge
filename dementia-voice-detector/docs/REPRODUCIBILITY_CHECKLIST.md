@@ -4,6 +4,17 @@ Freeze date: 2026-04-22.
 
 This checklist documents how to reproduce the official final baseline structure. It does not ask the current freeze run to rerun experiments.
 
+Scope note:
+
+- Official final academic baseline: `final_cleaned_logistic_regression_platt`
+- Best exploratory held candidate: `max_probability_ensemble default_0.5`
+- Root-level edge prototype: separate engineering layer, outside the scope of this baseline reproduction checklist
+
+Public-repo limitation:
+
+- this committed snapshot does not include the full raw-data, feature-table, and trained-model tree needed for a complete retraining rerun from scratch
+- this checklist therefore describes the documented baseline structure and expected frozen outputs rather than a guaranteed full raw-data rerun from the public snapshot alone
+
 - [ ] Environment setup: use Python `>=3.10` from `pyproject.toml` and install repository dependencies from `requirements.txt` or `pyproject.toml`.
 - [ ] Dependency limitation: no lock file was found; exact package versions are therefore not frozen in this repository state. Source: `requirements.txt`; `pyproject.toml`.
 - [ ] Data acquisition: use the governed project data already represented by `data/features/features_phase3_governed_pruned.csv` and the cleaned manifests in `reports/tables/phase6_5_trusted_subset_manifest_cleaned.csv` and `reports/tables/phase6_5_full_governed_subset_manifest_cleaned.csv`.

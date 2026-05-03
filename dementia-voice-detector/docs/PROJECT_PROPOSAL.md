@@ -1,5 +1,13 @@
 # Edge AI Dementia Voice Early Detector
 
+Historical proposal document.
+
+This file captures the original project pitch. It is not the final source of truth for the submission outcome. For the final packaged position, use:
+
+- `reports/final/FINAL_BASELINE_SUMMARY.md`
+- `reports/final/final_results.md`
+- `reports/final/final_model_decision.md`
+
 AI-powered speech analysis and processing system for early dementia risk screening using voice interpretation and deployable edge inference.
 
 ## Team

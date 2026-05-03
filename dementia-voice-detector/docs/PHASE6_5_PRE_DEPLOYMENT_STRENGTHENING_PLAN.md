@@ -1,16 +1,18 @@
 # Phase 6.5 Pre-Deployment Strengthening Plan
 
-Planning and documentation only. This file does not change training code, model selection logic, thresholds, or model artifacts.
+Historical planning document.
+
+Planning and documentation only. This file does not change training code, model selection logic, thresholds, or model artifacts. It reflects a larger working-tree planning snapshot rather than the exact set of artifacts committed in this final submission repo.
 
 ## Repository Context
 
-- Workspace root: `/Users/celinesadaka/Desktop/ml project`
-- Project folder: `/Users/celinesadaka/Desktop/ml project/dementia_voice_project`
-- Project-relative paths below assume the project folder as root.
+- Submission repo root: the parent repository containing this `dementia-voice-detector/` folder
+- Research subproject root: `dementia-voice-detector/`
+- Project-relative paths below should be interpreted relative to this folder
 
 ## Source Of Record
 
-This plan relies on existing repository artifacts only:
+This plan was written against a larger working tree. Some referenced artifacts were not committed in the final submission snapshot:
 
 - `reports/phase4_threshold_analysis.md`
 - `reports/tables/phase4_threshold_analysis.csv`
@@ -20,7 +22,7 @@ This plan relies on existing repository artifacts only:
 - `reports/phase5_final_summary.md`
 - `reports/phase5_score_display_policy.md`
 - `reports/phase5_output_layer_policy.md`
-- `dementia_voice_project/reports/phase5_score_band_definition.md`
+- `reports/phase5_score_band_definition.md`
 - `reports/phase5_mock_outputs.md`
 - `reports/phase5_clinician_review_pack.md`
 - `reports/phase6_final_comparison.md`
@@ -31,7 +33,7 @@ This plan relies on existing repository artifacts only:
 - `src/inference.py`
 - `scripts/phase4_baseline_experiments.py`
 
-## Current Defensible Anchor
+## Current Defensible Anchor At Time Of Planning
 
 - Final model anchor: Phase 4 `logistic_regression_platt`
 - Official threshold: `0.300`

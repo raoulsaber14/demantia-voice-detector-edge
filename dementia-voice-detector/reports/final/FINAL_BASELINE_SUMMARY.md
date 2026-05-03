@@ -10,6 +10,8 @@ This baseline is reproducible and well documented, but weak. On the cleaned seed
 
 The final framing is academic baseline only: not diagnostic, not clinically validated, and not deployment-ready. Source: `docs/BASELINE_MODEL_CARD.md`; `docs/DEMO_ALIGNMENT_SPEC_FINAL.md`.
 
+This document is distinct from the repository's best exploratory held candidate, `max_probability_ensemble default_0.5`, which is summarized separately in `final_results.md`. The root-level edge app is also separate and should be treated as a prototype engineering layer rather than the validated final model package.
+
 ## 2. Configuration Freeze
 
 - Dataset: cleaned trusted primary subset with 348 rows, 94 dementia clips, 254 non-dementia clips, and 191 unique speakers. Source: `reports/tables/phase6_5_trusted_subset_manifest_cleaned.csv`.

@@ -1,6 +1,12 @@
 # Data Organization
 
-The canonical project root is `dementia_voice_project/`.
+This document describes the intended research data layout relative to this folder, `dementia-voice-detector/`, inside the final submission repo.
+
+Important scope note:
+
+- the committed submission does **not** contain the full research data tree
+- many of the paths below describe the larger working layout used during the project
+- in this public snapshot, most data-bearing directories are intentionally absent because they were large, private, or generated
 
 ## Canonical Inputs
 
@@ -21,7 +27,7 @@ Phase 1 metadata generation combines the source Excel rows with folder-labeled a
 - `models/`: trained baseline and wav2vec artifacts.
 - `reports/tables/` and `reports/figures/`: generated evaluation outputs.
 
-Generated outputs are ignored by git so the repository stays lightweight and does not accidentally include private data.
+Generated outputs were typically ignored by git in the working project so the repository stayed lightweight and did not accidentally include private data. In this submission snapshot, those generated outputs are mostly not committed.
 
 ## External Snapshot
 
@@ -30,16 +36,16 @@ The original loose top-level audio folders were moved to:
 - `data/external/top_level_audio_snapshot/dementia/`
 - `data/external/top_level_audio_snapshot/nodementia/`
 
-Those folders are retained only as a traceable source snapshot. The current pipeline should read from `data/raw_audio/`.
+Those folders were retained only as a traceable source snapshot in the larger working tree. The intended pipeline input is `data/raw_audio/`.
 
 ## Reference Materials
 
-- `docs/references/`: papers, notes, and links used during project research.
-- `artifacts/source_archives/`: large archive files from the original project handoff.
+- `docs/references/`: papers, notes, and links used during project research in the larger working tree.
+- `artifacts/source_archives/`: large archive files from the original project handoff in the larger working tree.
 
 ## Phase 2 dataset audit (quality check)
 
-Reproducible inventory and QA for `data/raw_audio/` (no raw files are modified). This is the **Phase 2** data audit and is documented in `reports/dataset_audit/phase2_dataset_audit_report.md`.
+Reproducible inventory and QA for `data/raw_audio/` (no raw files are modified). This is the **Phase 2** data audit and is documented in `reports/dataset_audit/phase2_dataset_audit_report.md` in the fuller working-tree history.
 
 - **Run:** `make dataset-audit` or `python3 scripts/dataset_audit.py` from the project root.
 - **Outputs:** `reports/dataset_audit/` — `master_inventory.csv`, class/duration/technical summaries, `flagged_files.csv`, `manual_review_priority.csv`, `speaker_analysis.csv`, `phase2_dataset_audit_report.md`, `split_strategy_recommendation.md`, and related tables.

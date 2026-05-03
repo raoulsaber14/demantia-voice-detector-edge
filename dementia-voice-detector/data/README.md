@@ -1,6 +1,8 @@
 # Data Directory
 
-This directory contains local data and generated artifacts for the dementia voice screening project.
+This directory was intended to contain local research data and generated artifacts for the dementia voice screening project.
+
+In the committed submission snapshot, most data-bearing contents are intentionally absent because they were private, large, or generated during experimentation.
 
 Expected subdirectories:
 
@@ -11,4 +13,10 @@ Expected subdirectories:
 - `features/`: hand-crafted acoustic feature tables.
 - `external/`: source snapshots kept for traceability.
 
-Most contents are ignored by git because they can be large, private, or generated.
+Most contents were ignored by git because they could be large, private, or generated.
+
+For this submission:
+
+- the root repository includes small sample audio folders for edge-prototype checks
+- the full research data tree is not included here
+- expected subdirectories listed above may therefore be absent in the committed snapshot

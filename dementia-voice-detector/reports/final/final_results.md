@@ -2,7 +2,13 @@
 
 This summary reflects the final held project decision using existing completed artifacts only. No new experiment was run for this document.
 
-## Final held candidate
+Important distinction:
+
+- Official final academic baseline: `final_cleaned_logistic_regression_platt`
+- Best exploratory held candidate documented in this file: `max_probability_ensemble default_0.5`
+- Root-level edge prototype: separate engineering layer, not the final validated model package
+
+## Best exploratory held candidate
 
 - Candidate: `max_probability_ensemble default_0.5`
 - Evidence files:
@@ -44,6 +50,8 @@ This summary reflects the final held project decision using existing completed a
 ## Interpretation
 
 This candidate is best understood as a screening-support or referral-support model. It improves the chance of catching dementia-positive speakers, which matters more than minimizing false positives in this project framing, but it still increases false positives and is not clinically validated.
+
+It is the best exploratory held candidate in the repository, not the official final academic baseline.
 
 ## Risk statement
 
