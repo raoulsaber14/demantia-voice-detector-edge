@@ -1,175 +1,85 @@
 # Edge AI Dementia Voice Early Detector
 
-This repository is the final submission for a speech-based dementia screening-support project. It combines:
+A speech-based dementia screening-support tool that runs on a Raspberry Pi 4. It records audio from a USB microphone (or accepts uploaded WAV files), runs a two-stage wav2vec2 ONNX inference pipeline, and serves results through a browser-based UI accessible from any device on the same network.
 
-- research and training code for the documented academic baseline and exploratory ensemble work
-- edge inference wrappers and demo applications for local audio capture and prototype screening
-- final reports and supporting documentation
-
-This project is **screening-support only, not diagnosis**. Nothing in this repository should be presented as a clinically validated diagnostic tool.
-
-## Final Status
-
-- Official final academic baseline: `final_cleaned_logistic_regression_platt`
-- Best exploratory held candidate: `max_probability_ensemble default_0.5`
-- Edge prototype status: engineering demo only; not a validated deployment package
+**This is a screening-support tool only, not a medical diagnosis.**
 
 ## Repository Layout
 
 ```text
 .
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── .env.example
-├── Makefile
-├── pyproject.toml
 ├── app/
-│   ├── flask/
-│   └── streamlit/
-├── artifacts/
+│   └── flask/
+│       ├── web_server.py        # Flask server (entry point)
+│       └── templates/
+│           └── index.html       # Browser UI
 ├── configs/
-├── data/
-│   ├── README.md
-│   └── sample_audio/
-├── docs/
+│   └── edge_inference.yaml      # Model paths, labels, risk thresholds
 ├── edge_inference/
-├── models/
-├── reports/
-│   └── final/
-├── scripts/
+│   ├── backends.py              # ONNX / TFLite / two-stage backends
+│   ├── config.py                # EdgeConfig dataclass + YAML loader
+│   ├── preprocessing.py         # Waveform → tensor (resample, pad, truncate)
+│   └── wrapper.py               # DementiaScreener public API
+├── models/                      # NOT in git — copy manually (see below)
 ├── src/
-└── tests/
+│   └── audio_pipeline.py        # Mic capture, VAD cleaning, WAV loading
+├── requirements.txt
+├── Makefile
+└── Dockerfile
 ```
 
-## Folder Guide
+## Models
 
-- `app/flask/`: Flask prototype web demo
-- `app/streamlit/`: Streamlit research/demo app
-- `artifacts/`: placeholder directory for large local-generated artifacts that are not committed
-- `configs/`: runtime and training configuration files
-- `data/`: sample audio plus notes about the omitted research data tree
-- `docs/`: methodology, reproducibility notes, model cards, and project documentation
-- `edge_inference/`: edge model wrapper, preprocessing bridge, and backends
-- `models/`: expected location for external model binaries
-- `reports/final/`: curated final submission reports and tables
-- `scripts/`: runnable CLI utilities and research scripts
-- `src/`: shared source code for training, inference, preprocessing, and the audio pipeline
-- `tests/`: root-level automated tests
+**Model files are not committed to this repository** (too large for git). After cloning, copy the `models/` directory to the project root manually:
+
+```bash
+# Example: copy from the deployment machine via SCP
+scp -r user@pi-ip:~/project/models ./models
+```
+
+The config expects the Phase D wav2vec2 two-stage deployment layout:
+
+```
+models/
+└── phaseD_frozen_ensemble_deploy/
+    ├── wav2vec2_base/
+    │   └── wav2vec2_base_chunk8_accumulator_fp32_external/
+    │       ├── model.onnx
+    │       └── model.*.weight   (external weight files — copy the whole directory)
+    └── wav2vec2_component_head_fp32.onnx
+```
 
 ## Installation
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-Notes:
-- microphone capture depends on PortAudio being available for `sounddevice`
-- `scripts/generate_test_audio.py` also needs `ffmpeg` on `PATH`
+Requires PortAudio for microphone capture (`sudo apt install portaudio19-dev` on Raspberry Pi OS).
 
-## Running The Project
-
-Flask demo:
+## Running
 
 ```bash
 python3 -m app.flask.web_server
 ```
 
-Dockerized Flask demo:
+Then open `http://<pi-ip>:5000` in any browser on the same network.
 
-```bash
-docker build -t edge-ai-dementia-voice .
-docker run --rm -p 5000:5000 edge-ai-dementia-voice
-```
+**Important:** run as a module (`python3 -m app.flask.web_server`) from the project root, not as a script (`python3 app/flask/web_server.py`).
 
-Notes:
-- the committed Docker path serves the existing Flask demo only
-- the container uses `configs/edge_inference.yaml`, which expects external Phase D wav2vec2 deployment artifacts under `models/phaseD_frozen_ensemble_deploy/`
-- microphone capture inside Docker depends on host audio pass-through; the upload flow is the more portable demo path
-- if you have real external model artifacts, place them under `models/` and mount that folder into the container as needed, for example `-v "$(pwd)/models:/app/models"`
+## How It Works
 
-Streamlit demo:
+The Pi acts as a local web server. The browser UI lets a clinician either record directly from the Pi's USB microphone or upload a WAV file. The audio is cleaned (VAD, normalization), then fed through a two-stage ONNX pipeline:
 
-```bash
-streamlit run app/streamlit/demo_app.py
-```
+1. **Backbone** — wav2vec2 accumulator processes audio in 8-second chunks and accumulates frame-level statistics.
+2. **Head** — a classification head takes the mean+std embedding and outputs P(dementia).
 
-CLI screening flow:
-
-```bash
-python3 -m scripts.record_and_screen
-```
-
-Manual pipeline diagnostic:
-
-```bash
-python3 -m scripts.pipeline_diagnostic --input path/to/file.wav
-```
-
-## Tests
-
-Run the root-level test suite with:
-
-```bash
-python3 -m unittest discover -s tests -v
-```
-
-The edge smoke/integration coverage lives in `tests/test_edge_inference.py`. The metadata unit test lives in `tests/test_metadata_utils.py`.
-
-## Model Files
-
-The committed default edge config is `configs/edge_inference.yaml`. It targets the Phase D wav2vec2 two-stage ONNX deployment layout under `models/phaseD_frozen_ensemble_deploy/`.
-
-If you want to run external ONNX artifacts:
-
-1. Place the binaries under `models/phaseD_frozen_ensemble_deploy/`
-2. Keep `configs/edge_inference.yaml` as-is if your export matches the expected layout
-3. Or start from `configs/edge_inference.onnx.example.yaml` if you need a different ONNX path layout
-
-See `models/README.md` for the expected layout.
-
-The committed Flask and Streamlit demos currently expose raw screening outputs such as risk score, confidence, class probabilities, and threshold controls. They should be treated as research/demo review interfaces, not as clinician-safe or patient-facing presentation layers.
-
-## Final Documentation
-
-Primary final documents:
-
-- `reports/final/FINAL_BASELINE_SUMMARY.md`
-- `reports/final/final_results.md`
-- `reports/final/final_model_decision.md`
-- `reports/final/final_limitations_and_future_work.md`
-- `docs/OFFICIAL_BASELINE_CONFIGURATION.md`
-- `docs/BASELINE_MODEL_CARD.md`
-- `docs/SUBMISSION_OVERVIEW.md`
-- `docs/fairness_bias_statement.md`
-- `docs/privacy_data_provenance.md`
-
-Additional background:
-
-- `docs/RESEARCH_PIPELINE_OVERVIEW.md`
-- `docs/audio_pipeline_documentation.docx`
-- `docs/LEGACY_PROJECT_TREE_STRUCTURE.txt`
-
-## Data Scope
-
-The repository includes small demo clips under `data/sample_audio/` for manual checks only.
-
-The full research data tree is not included. Missing from the public snapshot are:
-
-- raw/private research audio
-- processed audio and feature tables
-- most generated training artifacts
-- trained research model folders
-- deployment ONNX artifacts for real edge inference
+Results are shown as a risk band (LOW / REQUIRES REVIEW / HIGH RISK INDICATOR) with a 0–100 risk score.
 
 ## Known Limits
 
-- The repo is organized as one canonical root, but it is still a submission snapshot rather than a full raw-data rerun environment.
-- Real edge inference still requires external model artifacts under `models/`.
-- The web prototype is a demo layer and should not be treated as the final user-facing clinical presentation.
-- The Flask app handles one active session at a time.
-- Subgroup fairness evaluation is limited by the available metadata coverage and should not be treated as complete fairness validation.
-- Privacy, provenance, and leakage-control boundaries are documented in `docs/privacy_data_provenance.md`.
+- One active session at a time (single-user, single-mic design).
+- Microphone capture uses the Pi's connected USB mic; browser mic is not supported.
+- This is a screening-support demo, not a clinically validated deployment.
