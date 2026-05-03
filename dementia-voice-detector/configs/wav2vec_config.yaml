@@ -1,0 +1,50 @@
+run_id: wav2vec_base_20260419_phase6_fixes_001
+model: facebook/wav2vec2-base
+model_download_date: 2026-04-18
+feature_extractor_version: transformers_4.57.6
+seed: 42
+data:
+  governed_feature_csv: data/features/features_phase3_governed_pruned.csv
+  governed_decisions_csv: reports/phase3_governed_record_decisions.csv
+  segment_duration: 3.0
+  hop_length_seconds: null
+  min_segment_duration: 1.5
+  sampling_rate: 16000
+  split_ratios: [0.60, 0.15, 0.10, 0.15]
+  split_policy: use_existing_phase3_phase4_splits_then_carve_calibration_from_training_speakers
+training:
+  batch_size: 8
+  learning_rate: 1e-5
+  optimizer: AdamW
+  weight_decay: 0.01
+  scheduler: linear_warmup_cosine
+  warmup_fraction: 0.1
+  epochs: 15
+  dropout: 0.35
+  freeze_strategy: gentle_layer_norm_then_upper_layers
+  pooling_strategy: attention
+  loss_strategy: weighted_ce
+  focal_gamma: 2.0
+  focal_alpha: 0.75
+  class_balanced_beta: 0.999
+  class_balanced_sampler: true
+  freeze_first_n_layers: 6
+  head_only_epochs: 3
+  early_stopping_patience: 5
+pilot:
+  pilot_epochs: 3
+  pilot_data_fraction: 0.03
+augmentation:
+  enabled: true
+  background_noise_snr_db: [15.0, 25.0]
+  gain_db: [-6.0, 6.0]
+  max_time_shift_seconds: 0.5
+  speed: [0.9, 1.1]
+data_quality:
+  apply_filters: true
+  min_speech_duration: 1.5
+  max_silence_ratio: 0.80
+evaluation:
+  primary_metric: recall_atypical
+  target_recall: 0.85
+  improvement_threshold: 0.03

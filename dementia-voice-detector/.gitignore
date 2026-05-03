@@ -1,0 +1,54 @@
+# OS and editor noise
+.DS_Store
+._*
+Thumbs.db
+.vscode/settings.json
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.cache/
+.venv/
+venv/
+
+# Local secrets and machine-specific config
+.env
+.env.*
+!.env.example
+
+# Raw, private, and generated data artifacts
+data/raw_audio/
+data/external/
+data/processed_audio/
+data/segments/
+data/features/*.csv
+data/metadata/*.csv
+data/metadata/*.xlsx
+*.wav
+*.mp3
+*.m4a
+*.flac
+
+# Training outputs and generated reports
+models/
+checkpoints/
+reports/figures/
+reports/tables/
+artifacts/source_archives/
+artifacts/phaseC_frozen_embeddings/
+artifacts/phase6_focused_embedding_chunks/
+final_results/
+*.zip
+
+# Large model/runtime exports
+*.onnx
+*.tflite
+*.pt
+*.pth
+*.ckpt
+*.joblib
