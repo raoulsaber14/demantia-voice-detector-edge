@@ -1,0 +1,73 @@
+{
+  "export_utc": "2026-04-26T19:02:03+00:00",
+  "backbone": "facebook/wav2vec2-base",
+  "source_model_type": "frozen_backbone_chunk_accumulator",
+  "input_contract": {
+    "input_audio_tensor": {
+      "name": "input_audio",
+      "shape": [
+        1,
+        128000
+      ],
+      "dtype": "float32"
+    },
+    "valid_samples_tensor": {
+      "name": "valid_samples",
+      "shape": [
+        1
+      ],
+      "dtype": "int64"
+    },
+    "sampling_rate_hz": 16000,
+    "chunk_duration_seconds": 8.0,
+    "minimum_retained_chunk_seconds": 0.5
+  },
+  "output_contract": {
+    "sum_vec": {
+      "shape": [
+        1,
+        768
+      ],
+      "dtype": "float32"
+    },
+    "sumsq_vec": {
+      "shape": [
+        1,
+        768
+      ],
+      "dtype": "float32"
+    },
+    "frame_count": {
+      "shape": [
+        1,
+        1
+      ],
+      "dtype": "float32"
+    },
+    "embedding_reconstruction": "mean = sum_vec / frame_count; std = sqrt(max(sumsq_vec / frame_count - mean^2, 0)); embedding = concat(mean, std)"
+  },
+  "clip_level_rule": {
+    "chunk_generation": "contiguous non-overlapping 8-second windows",
+    "drop_final_chunk_if_shorter_than_seconds_when_multiple_chunks": 0.5,
+    "if_single_chunk_shorter_than_minimum_seconds": "treat valid_samples as 0.5 seconds before padding to full chunk tensor",
+    "pooling": "global mean+std across all valid backbone frames across all retained chunks"
+  },
+  "artifacts": {
+    "preferred_runtime_variant": "fp32_external",
+    "fp32_external_model": "models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_fp32_external/model.onnx",
+    "fp32_external_total_size_bytes": 378726406,
+    "fp32_external_file_count": 210,
+    "fp32_external_max_file_size_bytes": 18874368,
+    "external_model": "models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_int8_external/model.onnx",
+    "external_total_size_bytes": 122914979,
+    "external_file_count": 210,
+    "external_max_file_size_bytes": 18874368
+  },
+  "validation": {
+    "sample_valid_samples": 84000,
+    "fp32_max_abs_diff_vs_torch": 0.01428985595703125,
+    "fp32_external_max_abs_diff_vs_torch": 0.01428985595703125,
+    "int8_max_abs_diff_vs_torch": 203.16378784179688,
+    "int8_external_max_abs_diff_vs_torch": 203.16378784179688
+  }
+}

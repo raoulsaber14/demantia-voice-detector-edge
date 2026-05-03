@@ -1,0 +1,91 @@
+{
+  "created_utc": "2026-04-28T17:27:45+00:00",
+  "official_candidate_name": "max_probability_ensemble default_0.5",
+  "ensemble_method": "max_probability_ensemble",
+  "ensemble_threshold": 0.5,
+  "deployment_note": "This manifest packages the official Phase D ensemble components for runtime use. The backbone exports are frozen pretrained models; the small linear heads are full-data deployment fits using the same locked Phase D recipe.",
+  "trusted_protocol_reference": {
+    "dataset_manifest": "reports/tables/phase6_5_trusted_subset_manifest_cleaned.csv",
+    "hubert_cache": "artifacts/phaseC_frozen_embeddings/trusted_cleaned/facebook__hubert_base_ls960_mean_std_chunk8p0.csv.gz",
+    "wav2vec2_cache": "artifacts/phaseC_frozen_embeddings/trusted_cleaned/facebook__wav2vec2_base_mean_std_chunk8p0.csv.gz",
+    "handcrafted_feature_table": "data/features/features_phase3_governed_pruned.csv",
+    "handcrafted_join": {
+      "key": "metadata_index",
+      "manifest_rows": 348,
+      "feature_table_rows": 375,
+      "matched_rows": 348,
+      "dropped_rows": 0,
+      "feature_count": 256
+    }
+  },
+  "backbones": [
+    {
+      "backbone": "facebook/hubert-base-ls960",
+      "slug": "hubert_base_ls960",
+      "contract_json": "models/phaseD_frozen_ensemble_deploy/hubert_base_ls960/hubert_base_ls960_chunk8_accumulator_contract.json",
+      "preferred_external_model": "models/phaseD_frozen_ensemble_deploy/hubert_base_ls960/hubert_base_ls960_chunk8_accumulator_fp32_external/model.onnx",
+      "preferred_runtime_variant": "fp32_external",
+      "fp32_external_model": "models/phaseD_frozen_ensemble_deploy/hubert_base_ls960/hubert_base_ls960_chunk8_accumulator_fp32_external/model.onnx",
+      "fp32_external_total_size_bytes": 378726229,
+      "fp32_external_max_file_size_bytes": 18874368,
+      "external_model": "models/phaseD_frozen_ensemble_deploy/hubert_base_ls960/hubert_base_ls960_chunk8_accumulator_int8_external/model.onnx",
+      "external_total_size_bytes": 122914716,
+      "external_file_count": 210,
+      "external_max_file_size_bytes": 18874368,
+      "fp32_max_abs_diff_vs_torch": 0.015380859375,
+      "fp32_external_max_abs_diff_vs_torch": 0.015380859375,
+      "int8_external_max_abs_diff_vs_torch": 449.9661865234375,
+      "chunk_samples": 128000
+    },
+    {
+      "backbone": "facebook/wav2vec2-base",
+      "slug": "wav2vec2_base",
+      "contract_json": "models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_contract.json",
+      "preferred_external_model": "models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_fp32_external/model.onnx",
+      "preferred_runtime_variant": "fp32_external",
+      "fp32_external_model": "models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_fp32_external/model.onnx",
+      "fp32_external_total_size_bytes": 378726406,
+      "fp32_external_max_file_size_bytes": 18874368,
+      "external_model": "models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_int8_external/model.onnx",
+      "external_total_size_bytes": 122914979,
+      "external_file_count": 210,
+      "external_max_file_size_bytes": 18874368,
+      "fp32_max_abs_diff_vs_torch": 0.01428985595703125,
+      "fp32_external_max_abs_diff_vs_torch": 0.01428985595703125,
+      "int8_external_max_abs_diff_vs_torch": 203.16378784179688,
+      "chunk_samples": 128000
+    }
+  ],
+  "components": [
+    {
+      "path": "models/phaseD_frozen_ensemble_deploy/hubert_only_component.json",
+      "component_name": "HuBERT-only logistic majority_vote default_0.5",
+      "feature_count": 1536,
+      "head_onnx": "models/phaseD_frozen_ensemble_deploy/hubert_only_component_head_fp32.onnx",
+      "head_contract_json": "models/phaseD_frozen_ensemble_deploy/hubert_only_component_head_contract.json"
+    },
+    {
+      "path": "models/phaseD_frozen_ensemble_deploy/hubert_plus_handcrafted_component.json",
+      "component_name": "HuBERT+handcrafted logistic_regression_platt majority_vote default_0.5",
+      "feature_count": 1792,
+      "head_onnx": "models/phaseD_frozen_ensemble_deploy/hubert_plus_handcrafted_component_head_fp32.onnx",
+      "head_contract_json": "models/phaseD_frozen_ensemble_deploy/hubert_plus_handcrafted_component_head_contract.json"
+    },
+    {
+      "path": "models/phaseD_frozen_ensemble_deploy/wav2vec2_component.json",
+      "component_name": "facebook/wav2vec2-base logistic mean_score default_0.5",
+      "feature_count": 1536,
+      "head_onnx": "models/phaseD_frozen_ensemble_deploy/wav2vec2_component_head_fp32.onnx",
+      "head_contract_json": "models/phaseD_frozen_ensemble_deploy/wav2vec2_component_head_contract.json"
+    }
+  ],
+  "ensemble_rule": {
+    "speaker_level_score": "max(component_probability_1, component_probability_2, component_probability_3)",
+    "speaker_level_prediction": "positive if max score >= 0.5 else negative",
+    "component_aggregations": {
+      "HuBERT-only logistic majority_vote default_0.5": "majority_vote over clip probabilities at threshold 0.5",
+      "HuBERT+handcrafted logistic_regression_platt majority_vote default_0.5": "majority_vote over clip probabilities at threshold 0.5",
+      "facebook/wav2vec2-base logistic mean_score default_0.5": "mean of clip probabilities"
+    }
+  }
+}
