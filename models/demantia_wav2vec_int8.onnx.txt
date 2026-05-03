@@ -1,6 +1,6 @@
 Placeholder only.
 
-No binary ONNX model is committed at this path. The repository now defaults to
-the dummy backend in `configs/edge_inference.yaml` so the root app can run
-without a model file. See `models/README.md` and
+No binary ONNX model is committed at this path. The committed runtime config
+expects external Phase D wav2vec2 deployment assets under
+`models/phaseD_frozen_ensemble_deploy/`. See `models/README.md` and
 `configs/edge_inference.onnx.example.yaml` for the external-model setup.

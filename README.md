@@ -87,7 +87,7 @@ docker run --rm -p 5000:5000 edge-ai-dementia-voice
 
 Notes:
 - the committed Docker path serves the existing Flask demo only
-- the default container behavior uses the committed dummy backend, so it is a smoke-test/demo path rather than real model deployment
+- the container uses `configs/edge_inference.yaml`, which expects external Phase D wav2vec2 deployment artifacts under `models/phaseD_frozen_ensemble_deploy/`
 - microphone capture inside Docker depends on host audio pass-through; the upload flow is the more portable demo path
 - if you have real external model artifacts, place them under `models/` and mount that folder into the container as needed, for example `-v "$(pwd)/models:/app/models"`
 
@@ -121,13 +121,13 @@ The edge smoke/integration coverage lives in `tests/test_edge_inference.py`. The
 
 ## Model Files
 
-The committed default edge config is `configs/edge_inference.yaml`. It uses the dummy backend so the edge demo can run without a real model binary.
+The committed default edge config is `configs/edge_inference.yaml`. It targets the Phase D wav2vec2 two-stage ONNX deployment layout under `models/phaseD_frozen_ensemble_deploy/`.
 
 If you want to run external ONNX artifacts:
 
-1. Place the binaries under `models/`
-2. Start from `configs/edge_inference.onnx.example.yaml`
-3. Replace the placeholder filenames with the real exported assets
+1. Place the binaries under `models/phaseD_frozen_ensemble_deploy/`
+2. Keep `configs/edge_inference.yaml` as-is if your export matches the expected layout
+3. Or start from `configs/edge_inference.onnx.example.yaml` if you need a different ONNX path layout
 
 See `models/README.md` for the expected layout.
 

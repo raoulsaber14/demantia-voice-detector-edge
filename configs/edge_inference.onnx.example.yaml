@@ -1,9 +1,9 @@
-# Example config for real ONNX deployment artifacts.
-# The committed default config uses the dummy backend so the repo is runnable
-# without external model binaries. Copy this file and replace the paths below
-# when real ONNX assets are available.
-# The filenames below are expected locations only; the corresponding binaries
-# are not committed in this repository snapshot.
+# Example config for alternate ONNX deployment artifacts.
+# The default committed config already targets the expected two-stage wav2vec2
+# export under models/phaseD_frozen_ensemble_deploy/. Copy this file if you
+# want to point the app at a different ONNX export layout.
+# The filenames below are examples only; the corresponding binaries are not
+# committed in this repository snapshot.
 
 # --- Model location and backend ---
 # Two-stage wav2vec2 pipeline example: backbone + head exported separately.

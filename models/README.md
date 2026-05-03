@@ -1,21 +1,16 @@
 # External Model Artifacts
 
-This repository now runs out of the box with the committed dummy backend in
-`configs/edge_inference.yaml`, so no binary model file is required for the
-default smoke-test path.
-
 Real ONNX deployment artifacts are not included in this submission snapshot.
-If you want to run the edge prototype with external models, place them in this
-folder and start from `configs/edge_inference.onnx.example.yaml`.
+
+The committed runtime config in `configs/edge_inference.yaml` expects the
+two-stage Phase D wav2vec2 export at:
+
+- `models/phaseD_frozen_ensemble_deploy/wav2vec2_base/wav2vec2_base_chunk8_accumulator_fp32_external/model.onnx`
+- `models/phaseD_frozen_ensemble_deploy/wav2vec2_component_head_fp32.onnx`
 
 For the committed Docker path, the simplest option is to mount the local
 `models/` folder into the container at `/app/models` if you want to supply
 external artifacts at runtime.
 
-The example config assumes a two-stage export:
-
-- `models/wav2vec2_backbone.onnx`
-- `models/wav2vec2_head.onnx`
-
-If you have a single-file ONNX model instead, set `head_model_path: null` and
-change the backend to `onnx`.
+If you want to run the edge prototype with a different ONNX export layout,
+start from `configs/edge_inference.onnx.example.yaml` and update the paths.
