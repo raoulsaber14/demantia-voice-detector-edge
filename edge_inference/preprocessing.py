@@ -8,7 +8,7 @@ ndarray) and the model's input tensor. This module:
   * casts to the configured dtype and adds a batch dim if needed
 
 It does NOT do trimming, denoising, normalization, or VAD — those happen
-upstream in audio_pipeline.py. Doing them again here would double-process and
+upstream in src/audio_pipeline.py. Doing them again here would double-process and
 potentially conflict with what the model was trained on.
 
 Resource notes (Pi 4, 4 GB):

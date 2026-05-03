@@ -3,7 +3,7 @@
 Public API:
     from edge_inference import DementiaScreener, load_config
 
-    cfg = load_config("edge_inference/model_config.yaml")
+    cfg = load_config("configs/edge_inference.yaml")
     screener = DementiaScreener(cfg)
     result = screener.predict(audio, sample_rate=16000)
 """

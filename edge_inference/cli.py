@@ -3,14 +3,14 @@
 Examples:
 
     # Run with the dummy backend on a real WAV file (no ML deps required):
-    python -m edge_inference.cli --config edge_inference/model_config.yaml --audio test.wav
+    python -m edge_inference.cli --config configs/edge_inference.yaml --audio test.wav
 
-    # Run with ONNX model:
-    #   first edit model_config.yaml: model_path: models/dementia_int8.onnx
-    python -m edge_inference.cli --config edge_inference/model_config.yaml --audio test.wav
+    # Run with external ONNX model:
+    #   first copy/edit configs/edge_inference.onnx.example.yaml
+    python -m edge_inference.cli --config configs/edge_inference.onnx.example.yaml --audio test.wav
 
     # Benchmark mode:
-    python -m edge_inference.cli --config edge_inference/model_config.yaml \
+    python -m edge_inference.cli --config configs/edge_inference.yaml \
         --audio test.wav --benchmark --runs 30
 """
 

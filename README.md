@@ -1,188 +1,156 @@
-# Edge AI Dementia Voice Detector
+# Edge AI Dementia Voice Early Detector
 
-This repository is the final project submission for a speech-based dementia screening-support study. It combines:
+This repository is the final submission for a speech-based dementia screening-support project. It combines:
 
-- a root-level edge inference prototype for local audio capture, preprocessing, and model wrapping
-- a nested research subproject in `dementia-voice-detector/` containing the training pipeline, final reports, and evaluation documentation
+- research and training code for the documented academic baseline and exploratory ensemble work
+- edge inference wrappers and demo applications for local audio capture and prototype screening
+- final reports and supporting documentation
 
-This project is **screening-support only, not diagnostic**. No part of this repository should be presented as a clinically validated diagnostic system.
+This project is **screening-support only, not diagnosis**. Nothing in this repository should be presented as a clinically validated diagnostic tool.
 
-## Submission Status
+## Final Status
 
 - Official final academic baseline: `final_cleaned_logistic_regression_platt`
 - Best exploratory held candidate: `max_probability_ensemble default_0.5`
-- Edge prototype status: engineering wrapper and demo layer only; it is not the final validated deployment package
+- Edge prototype status: engineering demo only; not a validated deployment package
 
-The short rubric-facing summary is in `SUBMISSION_OVERVIEW.md`.
-
-## Repository Structure
+## Repository Layout
 
 ```text
 .
 ├── README.md
-├── SUBMISSION_OVERVIEW.md
-├── audio_pipeline.py
-├── audio_pipeline_documentation.docx
-├── record_and_screen.py
-├── test_pipeline.py
-├── test_edge_inference.py
-├── verify_two_stage.py
-├── web_server.py
-├── generate_test_audio.py
-├── Project_tree_structure.txt
+├── requirements.txt
+├── .gitignore
+├── .env.example
+├── Makefile
+├── pyproject.toml
+├── app/
+│   ├── flask/
+│   └── streamlit/
+├── artifacts/
+├── configs/
+├── data/
+│   ├── README.md
+│   └── sample_audio/
+├── docs/
 ├── edge_inference/
-├── templates/
 ├── models/
-├── Audio_test_samples_dementia/
-├── non_dementia_Audio_test_samples/
-└── dementia-voice-detector/
-    ├── README.md
-    ├── pyproject.toml
-    ├── requirements.txt
-    ├── Makefile
-    ├── app/
-    ├── configs/
-    ├── data/
-    ├── docs/
-    ├── reports/final/
-    ├── scripts/
-    ├── src/
-    └── tests/
+├── reports/
+│   └── final/
+├── scripts/
+├── src/
+└── tests/
 ```
 
-## Canonical Project Story
+## Folder Guide
 
-The repository should be read as one submission with two scopes:
+- `app/flask/`: Flask prototype web demo
+- `app/streamlit/`: Streamlit research/demo app
+- `artifacts/`: placeholder directory for large local-generated artifacts that are not committed
+- `configs/`: runtime and training configuration files
+- `data/`: sample audio plus notes about the omitted research data tree
+- `docs/`: methodology, reproducibility notes, model cards, and project documentation
+- `edge_inference/`: edge model wrapper, preprocessing bridge, and backends
+- `models/`: expected location for external model binaries
+- `reports/final/`: curated final submission reports and tables
+- `scripts/`: runnable CLI utilities and research scripts
+- `src/`: shared source code for training, inference, preprocessing, and the audio pipeline
+- `tests/`: root-level automated tests
 
-1. Research pipeline and final evaluation archive  
-   Located in `dementia-voice-detector/`. This is where the documented baseline, exploratory ensemble work, reports, and reproducibility notes live.
-
-2. Edge prototype  
-   Located at the repository root. This is the engineering layer for local preprocessing, model wrapping, CLI usage, and a prototype web interface.
-
-The final written project conclusion is:
-
-- the official final academic baseline is the documented classical logistic-regression system
-- the best exploratory held candidate is the Phase D ensemble
-- the edge prototype remains a prototype and does not by itself establish deployment readiness or clinical validity
-
-## Official Final Outputs
-
-Official final academic baseline documentation:
-
-- `dementia-voice-detector/reports/final/FINAL_BASELINE_SUMMARY.md`
-- `dementia-voice-detector/docs/OFFICIAL_BASELINE_CONFIGURATION.md`
-- `dementia-voice-detector/docs/BASELINE_MODEL_CARD.md`
-
-Best exploratory held candidate documentation:
-
-- `dementia-voice-detector/reports/final/final_results.md`
-- `dementia-voice-detector/reports/final/phaseD_hubert_recall_recovery_benchmark.md`
-
-Project-level final framing and limitations:
-
-- `dementia-voice-detector/reports/final/final_model_decision.md`
-- `dementia-voice-detector/reports/final/final_limitations_and_future_work.md`
-
-## What Runs From This Repository
-
-### Root edge prototype
-
-Main root-level components:
-
-- `audio_pipeline.py`: audio cleaning and WAV I/O
-- `edge_inference/`: runtime inference wrappers and backends
-- `record_and_screen.py`: CLI screening path
-- `web_server.py`: prototype Flask UI
-- `templates/index.html`: prototype browser UI
-
-Recommended base environment for the root prototype:
+## Installation
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install numpy scipy flask sounddevice onnxruntime onnx requests pyyaml soundfile
-```
-
-Smoke test that works without external deployment artifacts:
-
-```bash
-python3 test_edge_inference.py
-```
-
-Pipeline-only validation:
-
-```bash
-python3 test_pipeline.py --input path/to/file.wav
-```
-
-### Nested research subproject
-
-The nested research pipeline has its own packaging files and tests:
-
-```bash
-cd dementia-voice-detector
-python3 -m venv .venv
-source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-The nested README explains that subproject in more detail.
+Notes:
+- microphone capture depends on PortAudio being available for `sounddevice`
+- `scripts/generate_test_audio.py` also needs `ffmpeg` on `PATH`
 
-## Edge Prototype Model Setup
+## Running The Project
 
-The default root config in `edge_inference/model_config.yaml` points to ONNX deployment artifacts that are **not included in this submission**.
+Flask demo:
 
-To run the root prototype:
+```bash
+python3 -m app.flask.web_server
+```
 
-1. Supply the expected external ONNX artifacts at the configured paths, or
-2. Switch the config to a dummy backend for smoke testing
+Streamlit demo:
 
-Because those deployment artifacts are missing, the root prototype should be treated as:
+```bash
+streamlit run app/streamlit/demo_app.py
+```
 
-- runnable in smoke-test mode
-- partially runnable with external model files supplied later
-- not a complete standalone deployment package as committed here
+CLI screening flow:
 
-## Included Vs Excluded Artifacts
+```bash
+python3 -m scripts.record_and_screen
+```
 
-Included in this submission:
+Manual pipeline diagnostic:
 
-- root edge prototype code
-- sample audio used for manual root-level checks
-- nested research code
-- curated final reports under `dementia-voice-detector/reports/final/`
-- documentation describing methodology, limitations, and responsible-use framing
+```bash
+python3 -m scripts.pipeline_diagnostic --input path/to/file.wav
+```
 
-Not fully included in this submission:
+## Tests
 
-- raw/private training data for the research pipeline
-- generated feature tables and most working `data/` outputs
-- trained research model folders under `dementia-voice-detector/models/`
-- deployment ONNX artifacts referenced by the root config
-- many intermediate working-tree reports referenced by historical planning documents
+Run the root-level test suite with:
 
-## Known Limitations
+```bash
+python3 -m unittest discover -s tests -v
+```
 
-- The official final academic baseline is documented, but the full raw-data retraining path is not self-contained in this public repo snapshot.
-- The best exploratory held candidate is documented from saved artifacts; it is not promoted here as a validated final deployment model.
-- The root web interface is an engineering prototype and should not be treated as the final user-facing clinical presentation layer.
-- The root prototype can only run with dummy mode unless external ONNX artifacts are supplied.
-- The web app can only handle one active session at a time.
-- The upload flow only accepts WAV files.
+The edge smoke/integration coverage lives in `tests/test_edge_inference.py`. The metadata unit test lives in `tests/test_metadata_utils.py`.
 
-## Sample Audio
+## Model Files
 
-The repository includes example audio under:
+The committed default edge config is `configs/edge_inference.yaml`. It uses the dummy backend so the edge demo can run without a real model binary.
 
-- `Audio_test_samples_dementia/`
-- `non_dementia_Audio_test_samples/`
+If you want to run external ONNX artifacts:
 
-These clips are included for manual root-level pipeline and inference checks only. They are not a substitute for the full research dataset and do not make the full training pipeline reproducible.
+1. Place the binaries under `models/`
+2. Start from `configs/edge_inference.onnx.example.yaml`
+3. Replace the placeholder filenames with the real exported assets
 
-## Additional Documentation
+See `models/README.md` for the expected layout.
 
-- `SUBMISSION_OVERVIEW.md`: single-page submission summary
-- `audio_pipeline_documentation.docx`: root audio preprocessing write-up
-- `Project_tree_structure.txt`: archived tree snapshot
+## Final Documentation
+
+Primary final documents:
+
+- `reports/final/FINAL_BASELINE_SUMMARY.md`
+- `reports/final/final_results.md`
+- `reports/final/final_model_decision.md`
+- `reports/final/final_limitations_and_future_work.md`
+- `docs/OFFICIAL_BASELINE_CONFIGURATION.md`
+- `docs/BASELINE_MODEL_CARD.md`
+- `docs/SUBMISSION_OVERVIEW.md`
+
+Additional background:
+
+- `docs/RESEARCH_PIPELINE_OVERVIEW.md`
+- `docs/audio_pipeline_documentation.docx`
+- `docs/LEGACY_PROJECT_TREE_STRUCTURE.txt`
+
+## Data Scope
+
+The repository includes small demo clips under `data/sample_audio/` for manual checks only.
+
+The full research data tree is not included. Missing from the public snapshot are:
+
+- raw/private research audio
+- processed audio and feature tables
+- most generated training artifacts
+- trained research model folders
+- deployment ONNX artifacts for real edge inference
+
+## Known Limits
+
+- The repo is organized as one canonical root, but it is still a submission snapshot rather than a full raw-data rerun environment.
+- Real edge inference still requires external model artifacts under `models/`.
+- The web prototype is a demo layer and should not be treated as the final user-facing clinical presentation.
+- The Flask app handles one active session at a time.

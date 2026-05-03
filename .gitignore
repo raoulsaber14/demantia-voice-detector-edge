@@ -1,0 +1,54 @@
+# OS and editor noise
+.DS_Store
+._*
+Thumbs.db
+.vscode/
+.idea/
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.cache/
+.venv/
+venv/
+
+# Local secrets and machine-specific config
+.env
+.env.*
+!.env.example
+
+# Root runtime outputs
+pipeline_output/
+test_audio/
+*.log
+
+# External model artifacts excluded from the submission snapshot
+models/*.onnx
+models/*.tflite
+models/*.pt
+models/*.pth
+models/*.ckpt
+models/*.joblib
+
+# Research data and generated outputs not committed
+data/raw_audio/
+data/external/
+data/processed_audio/
+data/segments/
+data/features/*.csv
+data/metadata/*.csv
+data/metadata/*.xlsx
+checkpoints/
+final_results/
+reports/figures/
+*.zip
+
+# Large local artifact caches
+artifacts/source_archives/
+artifacts/phaseC_frozen_embeddings/
+artifacts/phase6_focused_embedding_chunks/
