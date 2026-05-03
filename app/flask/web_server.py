@@ -15,11 +15,15 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 import tempfile
 import threading
 import uuid
 from datetime import datetime
 from pathlib import Path
+
+# Ensure the project root is on sys.path when the file is run directly
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from flask import Flask, Response, jsonify, render_template, request
 

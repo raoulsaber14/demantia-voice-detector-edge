@@ -110,18 +110,11 @@ class DementiaScreener:
 
     def _build_backend(self, num_threads: Optional[int]) -> InferenceBackend:
         kind = self.config.resolved_backend()
-        dummy_shape = (
-            (1, self.config.expected_input_samples)
-            if self.config.add_batch_dim
-            else (self.config.expected_input_samples,)
-        )
         return build_backend(
             backend_kind=kind,
             model_path=self.config.model_path,
             input_name=self.config.input_name,
             num_threads=num_threads,
-            dummy_input_shape=dummy_shape,
-            dummy_output_classes=len(self.config.label_names),
             head_path=self.config.head_model_path,
         )
 
@@ -191,9 +184,9 @@ class DementiaScreener:
         First inference is always 2–5x slower than steady state. Call this
         once at app startup before showing any latency claim to the user.
         """
-        dummy = np.zeros(self.config.expected_input_samples, dtype=np.float32)
+        silence = np.zeros(self.config.expected_input_samples, dtype=np.float32)
         for _ in range(max(1, int(n))):
-            self.predict(dummy, sample_rate=self.config.sample_rate)
+            self.predict(silence, sample_rate=self.config.sample_rate)
 
     def close(self) -> None:
         if self._owns_backend and self._backend is not None:

@@ -1,4 +1,0 @@
-model_a,model_b,shared_fn_count,shared_fp_count,fn_overlap_ratio,fp_overlap_ratio,speaker_disagreement_count,complementarity_judgment,notes
-HuBERT logistic majority_vote default_0.5,HuBERT+handcrafted logistic_regression_platt majority_vote default_0.5,194,107,0.8151260504201681,0.7278911564625851,84,low,"Overlap ratios are Jaccard overlap across seed-speaker error sets; aligned rows=955, disagreement_rate=0.088."
-HuBERT logistic majority_vote default_0.5,facebook/wav2vec2-base logistic mean_score default_0.5,150,42,0.49504950495049505,0.2625,271,moderate,"Overlap ratios are Jaccard overlap across seed-speaker error sets; aligned rows=955, disagreement_rate=0.284."
-HuBERT+handcrafted logistic_regression_platt majority_vote default_0.5,facebook/wav2vec2-base logistic mean_score default_0.5,155,43,0.5065359477124183,0.28104575163398693,261,moderate,"Overlap ratios are Jaccard overlap across seed-speaker error sets; aligned rows=955, disagreement_rate=0.273."

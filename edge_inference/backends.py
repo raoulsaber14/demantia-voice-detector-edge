@@ -1,12 +1,10 @@
 """Model backends for edge inference.
 
-Four backends are supported:
+Three backends are supported:
   * onnx                : onnxruntime, CPU provider only on Pi 4.
   * tflite              : tflite-runtime (lightweight) or full tensorflow as fallback.
   * wav2vec2_two_stage  : two-stage ONNX pipeline — chunk accumulator backbone
                           followed by a classification head.
-  * dummy               : returns deterministic-but-randomized scores; lets the rest
-                          of the pipeline be tested without a real model.
 
 The backend interface is intentionally tiny:
 
@@ -381,50 +379,6 @@ class Wav2Vec2TwoStageBackend(InferenceBackend):
 
 
 # ----------------------------------------------------------------------------
-# Dummy backend for end-to-end testing
-# ----------------------------------------------------------------------------
-
-class DummyBackend(InferenceBackend):
-    """Fake backend that returns plausible logits for a 2-class screening model.
-
-    Use this while the teammate hasn't shipped a real model. It makes the rest
-    of the pipeline (audio capture, preprocessing, risk banding, display,
-    phone transmit) testable end-to-end.
-
-    The output is deterministic given a seed plus the input tensor — so test
-    fixtures can pin expected values without a real model file.
-    """
-
-    def __init__(
-        self,
-        input_shape: Tuple[int, ...] = (1, 160_000),
-        output_classes: int = 2,
-        seed: int = 0,
-        input_name: str = "input_values",
-    ) -> None:
-        self.input_name = input_name
-        self.input_shape = tuple(input_shape)
-        self.output_names = ["logits"]
-        self._output_classes = int(output_classes)
-        self._seed = int(seed)
-
-    def run(self, tensor: np.ndarray) -> Dict[str, np.ndarray]:
-        # Score driven by signal energy + a per-call jitter — nothing meaningful,
-        # but stable across runs and varied across inputs so UI testing isn't trivial.
-        rng = np.random.default_rng(self._seed + int(abs(tensor.sum() * 1e3)) % 2**31)
-        energy = float(np.mean(np.square(tensor.astype(np.float64))))
-        # Map energy roughly into a logit range; add small noise.
-        base = np.tanh(energy * 4.0 - 0.5) * 1.5
-        logits = np.array(
-            [[-base + rng.normal(0, 0.2)] + [base + rng.normal(0, 0.2)] * (self._output_classes - 1)],
-            dtype=np.float32,
-        )
-        # Reshape if the requested output_classes != 2 to keep the helper general.
-        logits = logits.reshape(1, -1)[:, : self._output_classes].astype(np.float32)
-        return {"logits": logits}
-
-
-# ----------------------------------------------------------------------------
 # Factory
 # ----------------------------------------------------------------------------
 
@@ -433,8 +387,6 @@ def build_backend(
     model_path: Path,
     input_name: Optional[str] = None,
     num_threads: Optional[int] = None,
-    dummy_input_shape: Optional[Tuple[int, ...]] = None,
-    dummy_output_classes: int = 2,
     head_path: Optional[Path] = None,
 ) -> InferenceBackend:
     """Create the backend selected by config.
@@ -453,11 +405,4 @@ def build_backend(
                 "Set head_model_path in your EdgeConfig."
             )
         return Wav2Vec2TwoStageBackend(model_path, head_path, num_threads=num_threads)
-    if backend_kind == "dummy":
-        shape = dummy_input_shape if dummy_input_shape is not None else (1, 160_000)
-        return DummyBackend(
-            input_shape=shape,
-            output_classes=dummy_output_classes,
-            input_name=input_name or "input_values",
-        )
     raise ValueError(f"Unknown backend {backend_kind!r}")

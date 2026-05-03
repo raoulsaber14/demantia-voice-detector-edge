@@ -28,12 +28,8 @@ test_audio/
 *.log
 
 # External model artifacts excluded from the submission snapshot
-models/*.onnx
-models/*.tflite
-models/*.pt
-models/*.pth
-models/*.ckpt
-models/*.joblib
+# Ignore all model subdirectories (large binary weights, not committed to git)
+models/*/
 
 # Research data and generated outputs not committed
 data/raw_audio/

@@ -20,11 +20,10 @@ class EdgeConfig:
     ----------
     model_path:
         Filesystem path to the model file. Suffix determines backend
-        (.onnx, .tflite, or "dummy" for test mode).
+        (.onnx or .tflite).
     backend:
-        One of {"auto", "onnx", "tflite", "dummy"}. "auto" infers from file
-        extension; "dummy" returns random scores so the rest of the pipeline
-        can be validated without a real model.
+        One of {"auto", "onnx", "tflite", "wav2vec2_two_stage"}. "auto" infers
+        from file extension.
     sample_rate:
         Hard contract with the model. Must be 16000 to match teammate's training.
     expected_input_seconds:
@@ -91,11 +90,9 @@ class EdgeConfig:
             return "onnx"
         if suffix == ".tflite":
             return "tflite"
-        if str(self.model_path).lower() == "dummy" or suffix == ".dummy":
-            return "dummy"
         raise ValueError(
             f"Cannot infer backend from path {self.model_path!r}. "
-            f"Set backend explicitly in config (one of: onnx, tflite, dummy, wav2vec2_two_stage)."
+            f"Set backend explicitly in config (one of: onnx, tflite, wav2vec2_two_stage)."
         )
 
     def validate(self) -> None:
