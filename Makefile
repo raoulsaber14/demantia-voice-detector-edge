@@ -80,7 +80,7 @@ demo:
 	streamlit run app/streamlit/demo_app.py
 
 compile:
-	$(PYTHON) -m py_compile src/*.py app/streamlit/demo_app.py app/flask/web_server.py scripts/*.py tests/*.py edge_inference/*.py
+	$(PYTHON) -m py_compile src/*.py app/flask/web_server.py scripts/*.py tests/*.py edge_inference/*.py
 
 test:
 	$(PYTHON) -m unittest discover -s tests -v

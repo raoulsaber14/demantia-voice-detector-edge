@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dementia-voice-screening"
 version = "0.1.0"
-description = "Edge-oriented dementia risk screening support from speech audio."
+description = "EECE 490/690 — Edge-oriented dementia risk screening support from speech audio."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
@@ -41,7 +41,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["src"]
+packages = ["src", "edge_inference"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
